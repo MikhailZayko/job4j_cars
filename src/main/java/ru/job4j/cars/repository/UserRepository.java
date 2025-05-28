@@ -1,129 +1,85 @@
 package ru.job4j.cars.repository;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @AllArgsConstructor
-@Repository
 public class UserRepository {
-
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
 
     /**
      * Сохранить в базе.
-     *
      * @param user пользователь.
      * @return пользователь с id.
      */
     public User create(User user) {
-        transactionVoid(session -> session.save(user));
+        crudRepository.run(session -> session.persist(user));
         return user;
     }
 
     /**
      * Обновить в базе пользователя.
-     *
      * @param user пользователь.
      */
     public void update(User user) {
-        transactionVoid(session -> session.createQuery(
-                        "UPDATE User SET login = :fLogin, password = :fPassword WHERE id = :fId")
-                .setParameter("fLogin", user.getLogin())
-                .setParameter("fPassword", user.getPassword())
-                .setParameter("fId", user.getId())
-                .executeUpdate());
+        crudRepository.run(session -> session.merge(user));
     }
 
     /**
      * Удалить пользователя по id.
-     *
      * @param userId ID
      */
     public void delete(int userId) {
-        transactionVoid(session -> session.createQuery(
-                        "DELETE User WHERE id = :fId")
-                .setParameter("fId", userId)
-                .executeUpdate());
+        crudRepository.run(
+                "delete User where id = :fId",
+                Map.of("fId", userId)
+        );
     }
 
     /**
      * Список пользователь отсортированных по id.
-     *
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        return transaction(session -> session.createQuery("FROM User", User.class).list());
+        return crudRepository.query("from User order by id asc", User.class);
     }
 
     /**
      * Найти пользователя по ID
-     *
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        return transaction(session -> session.createQuery("FROM User u WHERE u.id = :fId", User.class)
-                .setParameter("fId", userId)
-                .uniqueResultOptional());
+        return crudRepository.optional(
+                "from User where id = :fId", User.class,
+                Map.of("fId", userId)
+        );
     }
 
     /**
      * Список пользователей по login LIKE %key%
-     *
      * @param key key
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        return transaction(session -> session.createQuery("FROM User u WHERE u.login LIKE :fLogin", User.class)
-                .setParameter("fLogin", "%" + key + "%")
-                .list());
+        return crudRepository.query(
+                "from User where login like :fKey", User.class,
+                Map.of("fKey", "%" + key + "%")
+        );
     }
 
     /**
      * Найти пользователя по login.
-     *
      * @param login login.
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        return transaction(session -> session.createQuery("FROM User u WHERE u.login = :fLogin", User.class)
-                .setParameter("fLogin", login)
-                .uniqueResultOptional());
-    }
-
-    private <T> T transaction(Function<Session, T> command) {
-        T result = null;
-        Transaction transaction = null;
-        try (Session session = sf.openSession()) {
-            transaction = session.beginTransaction();
-            result = command.apply(session);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-        }
-        return result;
-    }
-
-    private void transactionVoid(Consumer<Session> command) {
-        Transaction transaction = null;
-        try (Session session = sf.openSession()) {
-            transaction = session.beginTransaction();
-            command.accept(session);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-        }
+        return crudRepository.optional(
+                "from User where login = :fLogin", User.class,
+                Map.of("fLogin", login)
+        );
     }
 }
