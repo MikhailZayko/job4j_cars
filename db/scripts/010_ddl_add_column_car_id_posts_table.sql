@@ -1,0 +1,2 @@
+ALTER TABLE posts
+ADD COLUMN car_id INT NOT NULL REFERENCES car(id);
