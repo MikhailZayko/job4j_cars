@@ -1,5 +1,6 @@
-CREATE TABLE history (
-    id SERIAL primary key,
-    startAt timestamp,
-    endAt timestamp
+CREATE TABLE history
+(
+    id SERIAL PRIMARY KEY,
+    startAt TIMESTAMP,
+    endAt TIMESTAMP
 );

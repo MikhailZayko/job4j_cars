@@ -1,6 +1,6 @@
-create table users
+CREATE TABLE users
 (
-    id       serial primary key,
-    login    varchar not null,
-    password varchar not null
+    id       SERIAL PRIMARY KEY,
+    login    VARCHAR NOT NULL,
+    password VARCHAR NOT NULL
 );

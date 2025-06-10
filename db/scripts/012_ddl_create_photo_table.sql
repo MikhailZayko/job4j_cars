@@ -1,6 +1,7 @@
-create table photo(
-    id   serial primary key,
-    name varchar not null,
-    path varchar not null unique,
-    post_id int not null references posts(id)
+CREATE TABLE photo
+(
+    id   SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    path VARCHAR NOT NULL UNIQUE,
+    post_id INT NOT NULL REFERENCES posts(id)
 );

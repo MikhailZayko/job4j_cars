@@ -1,7 +1,7 @@
-create table posts
+CREATE TABLE posts
 (
-    id          serial primary key,
-    description varchar not null,
-    created     timestamp,
-    user_id     int references users(id)
+    id          SERIAL PRIMARY KEY,
+    description VARCHAR NOT NULL,
+    created     TIMESTAMP,
+    user_id     INT REFERENCES users(id)
 );

@@ -1,5 +1,6 @@
-create table owners(
-    id serial primary key,
-    name varchar not null,
-    user_id int not null references users(id)
+CREATE TABLE owners
+(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    user_id INT NOT NULL REFERENCES users(id)
 );
